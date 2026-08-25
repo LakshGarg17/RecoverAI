@@ -1,0 +1,73 @@
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+from app.core.db import engine, Base
+import app.models  # Ensure all models are registered
+from app.api.v1.router import api_v1_router
+from app.api.v1.endpoints.health import check_health
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Ensure tables exist in dev environment
+    logger.info(f"Starting {settings.PROJECT_NAME} (env: {settings.ENVIRONMENT})")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schemas verified.")
+    except Exception as e:
+        logger.warning(f"Could not initialize DB tables on startup: {e}")
+    yield
+    logger.info(f"Shutting down {settings.PROJECT_NAME}")
+
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    description="Autonomous AI agent for recovering failed and overdue payments in SaaS and B2B workflows.",
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
+
+# CORS Middleware setup for frontend connectivity
+origins = settings.BACKEND_CORS_ORIGINS
+if isinstance(origins, list):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+# Versioned API routes
+app.include_router(api_v1_router, prefix=settings.API_V1_STR)
+
+# Top-level Health check endpoint required by spec: GET /api/health
+app.add_api_route(
+    "/api/health",
+    check_health,
+    methods=["GET"],
+    tags=["Health"],
+    summary="Top-level API Health Check",
+)
+
+
+@app.get("/", tags=["General"])
+def root():
+    return {
+        "app": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "docs": "/docs",
+        "health": "/api/health",
+        "api_v1": settings.API_V1_STR,
+    }
