@@ -117,4 +117,8 @@ class RecoveryCase(Base):
         )
 
 
-__all__ = ["Customer", "Transaction", "RecoveryCase"]
+# Import AIDecision to ensure it's registered on Base.metadata
+from database.ai_decisions import AIDecision
+
+__all__ = ["Customer", "Transaction", "RecoveryCase", "AIDecision"]
+
