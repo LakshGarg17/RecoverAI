@@ -52,6 +52,10 @@ if isinstance(origins, list):
 # Versioned API routes
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
+# Top-level API routes alias (/api/ai and /api/health)
+from app.api.v1.endpoints import ai as ai_endpoints
+app.include_router(ai_endpoints.router, prefix="/api/ai", tags=["AI Agent (Direct Alias)"])
+
 # Top-level Health check endpoint required by spec: GET /api/health
 app.add_api_route(
     "/api/health",
