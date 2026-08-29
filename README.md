@@ -13,7 +13,22 @@
 
 ---
 
-## 🏗️ Architecture & Project Layout
+## 🏗️ End-to-End Autonomous Pipeline Architecture
+
+```mermaid
+flowchart LR
+    A[Kaggle E-Commerce Dataset<br/>25,000 Sessions] --> B[Data Pipeline<br/>Day 2]
+    B --> C[Canonical Events Schema<br/>recoverai_events.csv]
+    C --> D[Deterministic Risk Engine<br/>Day 3: 0-100 Score]
+    D --> E[AI Diagnosis Agent<br/>Day 4: LLM Interpretation]
+    E --> F[Recovery Decision<br/>Structured Strategy & Draft]
+    F --> G[Autonomous Guardrails<br/>Day 6: Safety Rules]
+    G --> H[Razorpay Test Mode<br/>Day 7: Live Recovery Checkout]
+```
+
+---
+
+## 📁 Project Layout
 
 ```text
 RecoverAI-Autonomous Payment Recovery Agent/
@@ -25,41 +40,47 @@ RecoverAI-Autonomous Payment Recovery Agent/
 │   │   ├── app/              # App router pages, layout, and global styles
 │   │   ├── components/       # UI components (Health diagnostics, Charts, Navbar)
 │   │   └── lib/              # Centralized API client (`api.ts`) and TypeScript types
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── tsconfig.json
 │
 ├── backend/                  # FastAPI Python Application
 │   ├── app/
 │   │   ├── api/v1/           # Versioned API routes (/health, /payments, /ai)
 │   │   ├── core/             # Configuration (pydantic-settings) and DB engine
 │   │   ├── models/           # SQLAlchemy ORM declarative models (User, RecoveryCase)
-│   │   ├── schemas/          # Pydantic validation schemas
-│   │   ├── services/         # Razorpay SDK and OpenAI client services
+│   │   ├── schemas/          # Pydantic validation schemas (Risk, Payment, AI)
+│   │   ├── services/         # Deterministic Risk Engine & AI Agent services
 │   │   └── main.py           # FastAPI entrypoint with CORS and lifespans
+│   ├── data_pipeline/        # Day 2/3 Data Pipeline & Evaluation scripts
 │   ├── run.py                # CLI server runner
 │   └── requirements.txt      # Python dependencies
 │
-├── database/                 # Database migrations and Session bridge
-│   ├── alembic/              # Migration scripts and environment configuration
-│   ├── alembic.ini
-│   ├── session.py            # Reusable database session adapter
-│   └── README.md
+├── database/                 # Database models, Session bridge & AI Decision logs
+│   ├── ai_decisions.py       # Persisted AI decisions & audit trail summary
+│   ├── models.py             # Customer, Transaction, RecoveryCase, AIDecision
+│   └── session.py            # Reusable database session adapter
 │
-├── ai/                       # AI Agent Prompt Engineering & Schemas
-│   ├── client.py             # OpenAI Structured Outputs wrapper
-│   ├── prompts/              # System prompt templates
-│   └── schemas/              # Structured recovery decision schemas
+├── ai/                       # AI Agent Prompt Engineering & Schemas (Day 4)
+│   ├── diagnosis.py          # Context builder, LLM caller, validation, fallbacks
+│   ├── prompts.py            # System & user prompt templates
+│   └── schemas.py            # Strict Pydantic output schemas & controlled enums
 │
-├── tests/                    # Backend automated tests
-│   ├── conftest.py           # Pytest TestClient fixture
-│   ├── test_health.py        # API endpoint tests
-│   └── test_db.py            # Database model tests
+├── data/                     # Data Layer (Raw immutable, Processed, Samples)
+│   ├── raw/                  # indian_ecommerce.csv (untracked in Git)
+│   ├── processed/            # recoverai_events.csv (untracked in Git)
+│   └── samples/              # recoverai_sample.csv (tracked in Git)
+│
+├── tests/                    # Backend automated tests (36 unit & integration tests)
+│   ├── test_data_pipeline.py # Day 2 pipeline tests
+│   ├── test_risk_engine.py   # Day 3 deterministic scoring tests
+│   ├── test_ai_diagnosis.py  # Day 4 AI diagnosis & validation tests
+│   └── test_health.py        # API endpoint tests
 │
 └── docs/                     # Comprehensive Architecture & API Documentation
-    ├── architecture.md       # Detailed technical design specification
-    ├── api_spec.md           # REST API endpoints & JSON payloads
-    └── setup_guide.md        # Step-by-step developer guide
+    ├── dataset.md            # Dataset origin & canonical schema
+    ├── day2-eda.md           # Exploratory data analysis & intent scoring
+    ├── day3-risk-engine.md   # Deterministic risk scoring specification
+    ├── day4-ai-evaluation.md # 25 real-case AI diagnosis evaluation report
+    ├── architecture.md       # Technical design specification
+    └── api_spec.md           # REST API endpoints & JSON payloads
 ```
 
 ---
