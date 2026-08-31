@@ -52,11 +52,14 @@ if isinstance(origins, list):
 # Versioned API routes
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
-# Top-level API routes alias (/api/ai, /api/decision, and /api/health)
+# Top-level API routes alias (/api/ai, /api/decision, /api/guardrails, and /api/health)
 from app.api.v1.endpoints import ai as ai_endpoints
 from app.api.v1.endpoints import decision as decision_endpoints
+from app.api.v1.endpoints import guardrails as guardrail_endpoints
 app.include_router(ai_endpoints.router, prefix="/api/ai", tags=["AI Agent (Direct Alias)"])
 app.include_router(decision_endpoints.router, prefix="/api/decision", tags=["Recovery Decision Agent (Direct Alias)"])
+app.include_router(guardrail_endpoints.router, prefix="/api/guardrails", tags=["Guardrail Engine (Direct Alias)"])
+
 
 
 # Top-level Health check endpoint required by spec: GET /api/health

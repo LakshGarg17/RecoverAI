@@ -4,6 +4,7 @@ from app.models.user import User
 from database.models import Customer, Transaction, RecoveryCase
 from database.ai_decisions import AIDecision
 from database.decision_models import RecoveryDecision
+from database.audit_models import GuardrailAuditLog
 
 __all__ = [
     "Base",
@@ -14,5 +15,7 @@ __all__ = [
     "RecoveryCase",
     "AIDecision",
     "RecoveryDecision",
+    "GuardrailAuditLog",
 ]
+
 

@@ -14,6 +14,21 @@ from backend.services.decision_engine import (
     DecisionResult,
     filter_eligible_actions,
 )
+from backend.services.guardrail_engine import (
+    GuardrailEngine,
+    guardrail_engine_service,
+    check_purchase_completion,
+    check_risk_threshold,
+    check_recovery_probability,
+    check_expected_recovery_value,
+    check_max_attempts,
+    check_cooldown_window,
+    check_duplicate_action,
+    check_action_permission,
+    check_transaction_limit,
+    check_customer_contact_frequency,
+    check_manual_review_conditions,
+)
 
 __all__ = [
     "evaluate_event_risk",
@@ -26,5 +41,19 @@ __all__ = [
     "decision_engine_service",
     "DecisionResult",
     "filter_eligible_actions",
+    "GuardrailEngine",
+    "guardrail_engine_service",
+    "check_purchase_completion",
+    "check_risk_threshold",
+    "check_recovery_probability",
+    "check_expected_recovery_value",
+    "check_max_attempts",
+    "check_cooldown_window",
+    "check_duplicate_action",
+    "check_action_permission",
+    "check_transaction_limit",
+    "check_customer_contact_frequency",
+    "check_manual_review_conditions",
 ]
+
 
