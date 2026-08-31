@@ -141,3 +141,33 @@ class DiagnoseEventResponse(BaseModel):
     source: str = Field("ai", description="'ai' for LLM generation or 'fallback' for deterministic fallback")
     model_name: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# Import Day 6 Guardrail Schemas for unified access
+from ai.guardrail_schemas import (
+    GuardrailStatus,
+    ExecutionState,
+    CheckStatus,
+    GuardrailCheckDetail,
+    GuardrailValidationResult,
+    GuardrailValidateRequest,
+    GuardrailValidateResponse,
+)
+
+__all__ = [
+    "DiagnosisCategory",
+    "RecoveryAction",
+    "PriorityTier",
+    "AIDiagnosisResult",
+    "AIDecisionContext",
+    "DiagnoseEventRequest",
+    "DiagnoseEventResponse",
+    "GuardrailStatus",
+    "ExecutionState",
+    "CheckStatus",
+    "GuardrailCheckDetail",
+    "GuardrailValidationResult",
+    "GuardrailValidateRequest",
+    "GuardrailValidateResponse",
+]
+
