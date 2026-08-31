@@ -30,6 +30,17 @@ from backend.services.guardrail_engine import (
     check_manual_review_conditions,
 )
 
+from backend.services.razorpay_service import (
+    RazorpayService,
+    razorpay_service,
+    RazorpayServiceError,
+)
+from backend.services.execution_engine import (
+    ExecutionEngine,
+    execution_engine_service,
+    ExecutionResult,
+)
+
 __all__ = [
     "evaluate_event_risk",
     "batch_evaluate_events",
@@ -54,6 +65,13 @@ __all__ = [
     "check_transaction_limit",
     "check_customer_contact_frequency",
     "check_manual_review_conditions",
+    "RazorpayService",
+    "razorpay_service",
+    "RazorpayServiceError",
+    "ExecutionEngine",
+    "execution_engine_service",
+    "ExecutionResult",
 ]
+
 
 

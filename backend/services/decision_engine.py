@@ -82,6 +82,8 @@ class DecisionResult(BaseModel):
     decision_score: float
     expected_recovery_value: float
     estimated_recovery_probability: float
+    cart_value: float = 0.0
+    purchase_status: str = "abandoned"
     explanation: str
     reasons: List[str]
     alternative_actions: List[AlternativeActionDetail]
@@ -101,6 +103,8 @@ class DecisionResult(BaseModel):
             "decision_score": round(self.decision_score, 1),
             "expected_recovery_value": round(self.expected_recovery_value, 2),
             "estimated_recovery_probability": round(self.estimated_recovery_probability, 2),
+            "cart_value": round(self.cart_value, 2),
+            "purchase_status": self.purchase_status,
             "explanation": self.explanation,
             "reasons": self.reasons,
             "alternative_actions": [a.model_dump() for a in self.alternative_actions],
@@ -109,6 +113,7 @@ class DecisionResult(BaseModel):
             "divergence_reason": self.divergence_reason,
             "policy_applied": self.policy_applied,
         }
+
 
 
 def filter_eligible_actions(
@@ -461,6 +466,8 @@ class RecoveryDecisionEngine:
             decision_score=selected_scored.score,
             expected_recovery_value=selected_scored.expected_recovery_value,
             estimated_recovery_probability=selected_scored.estimated_recovery_probability,
+            cart_value=context.cart_value,
+            purchase_status=context.purchase_status or "abandoned",
             explanation=explanation,
             reasons=reasons,
             alternative_actions=alternatives,
@@ -469,6 +476,7 @@ class RecoveryDecisionEngine:
             divergence_reason=divergence,
             policy_applied=policy.to_dict(),
         )
+
 
         # 8. Persist Decision Record in DB if session provided
         if db:

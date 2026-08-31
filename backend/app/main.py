@@ -52,13 +52,20 @@ if isinstance(origins, list):
 # Versioned API routes
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
-# Top-level API routes alias (/api/ai, /api/decision, /api/guardrails, and /api/health)
+# Top-level API routes alias (/api/ai, /api/decision, /api/guardrails, /api/execution, /api/webhooks, /api/recovery, and /api/health)
 from app.api.v1.endpoints import ai as ai_endpoints
 from app.api.v1.endpoints import decision as decision_endpoints
 from app.api.v1.endpoints import guardrails as guardrail_endpoints
+from app.api.v1.endpoints import execution as execution_endpoints
+from app.api.v1.endpoints import webhooks as webhook_endpoints
+from app.api.v1.endpoints import recovery as recovery_endpoints
 app.include_router(ai_endpoints.router, prefix="/api/ai", tags=["AI Agent (Direct Alias)"])
 app.include_router(decision_endpoints.router, prefix="/api/decision", tags=["Recovery Decision Agent (Direct Alias)"])
 app.include_router(guardrail_endpoints.router, prefix="/api/guardrails", tags=["Guardrail Engine (Direct Alias)"])
+app.include_router(execution_endpoints.router, prefix="/api/execution", tags=["Recovery Execution (Direct Alias)"])
+app.include_router(webhook_endpoints.router, prefix="/api/webhooks", tags=["Razorpay Webhooks (Direct Alias)"])
+app.include_router(recovery_endpoints.router, prefix="/api/recovery", tags=["Autonomous Recovery Pipeline (Direct Alias)"])
+
 
 
 
