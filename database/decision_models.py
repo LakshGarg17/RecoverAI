@@ -38,6 +38,8 @@ class RecoveryDecision(Base):
     estimated_recovery_probability = Column(Float, nullable=False, default=0.0)
     priority = Column(String(32), nullable=False, default="MEDIUM")
     risk_score = Column(Float, nullable=False, default=0.0)
+    cart_value = Column(Float, nullable=False, default=0.0)
+    purchase_status = Column(String(32), nullable=False, default="abandoned")
     
     # Audit details & explanations
     reasons = Column(Text, nullable=True)  # JSON-encoded list of reason bullets
@@ -75,6 +77,8 @@ class RecoveryDecision(Base):
             "estimated_recovery_probability": round(self.estimated_recovery_probability, 2),
             "priority": self.priority,
             "risk_score": round(self.risk_score, 1),
+            "cart_value": round(self.cart_value, 2) if self.cart_value is not None else 0.0,
+            "purchase_status": self.purchase_status or "abandoned",
             "reasons": safe_json_loads(self.reasons, []),
             "explanation": self.explanation,
             "alternative_actions": safe_json_loads(self.alternative_actions, []),
@@ -115,6 +119,9 @@ def save_recovery_decision(db: Session, decision_data: Dict[str, Any]) -> Recove
     ai_prob = decision_data.get("ai_recovery_probability") or ai_rec.get("recovery_probability")
     ai_diag = decision_data.get("ai_diagnosis_category") or ai_rec.get("diagnosis")
 
+    cart_val = float(decision_data.get("cart_value") or decision_data.get("revenue_at_risk") or 0.0)
+    purch_status = str(decision_data.get("purchase_status", "abandoned"))
+
     existing = db.query(RecoveryDecision).filter(RecoveryDecision.decision_id == decision_id).first()
     if existing:
         existing.event_id = event_id
@@ -125,6 +132,8 @@ def save_recovery_decision(db: Session, decision_data: Dict[str, Any]) -> Recove
         existing.estimated_recovery_probability = float(decision_data.get("estimated_recovery_probability", 0.0))
         existing.priority = str(decision_data.get("priority", "MEDIUM"))
         existing.risk_score = float(decision_data.get("risk_score", 0.0))
+        existing.cart_value = cart_val
+        existing.purchase_status = purch_status
         existing.reasons = reasons_json
         existing.explanation = str(decision_data.get("explanation", ""))
         existing.alternative_actions = alternatives_json
@@ -148,6 +157,8 @@ def save_recovery_decision(db: Session, decision_data: Dict[str, Any]) -> Recove
         estimated_recovery_probability=float(decision_data.get("estimated_recovery_probability", 0.0)),
         priority=str(decision_data.get("priority", "MEDIUM")),
         risk_score=float(decision_data.get("risk_score", 0.0)),
+        cart_value=cart_val,
+        purchase_status=purch_status,
         reasons=reasons_json,
         explanation=str(decision_data.get("explanation", "")),
         alternative_actions=alternatives_json,
@@ -159,6 +170,7 @@ def save_recovery_decision(db: Session, decision_data: Dict[str, Any]) -> Recove
         policy_applied=policy_json,
         created_at=datetime.utcnow(),
     )
+
 
     db.add(record)
     db.commit()

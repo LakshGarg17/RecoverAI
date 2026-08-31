@@ -39,7 +39,11 @@ except ImportError:
 
 def init_db(drop_all: bool = False):
     """Create all tables defined in models. Optionally drop them first."""
-    from database.models import Customer, Transaction, RecoveryCase  # noqa: F401
+    from database.models import Customer, Transaction, RecoveryCase, AIDecision  # noqa: F401
+    from database.decision_models import RecoveryDecision  # noqa: F401
+    from database.audit_models import GuardrailAuditLog  # noqa: F401
+    from database.execution_models import RecoveryExecution  # noqa: F401
+    from database.recovery_models import RecoveryRecord  # noqa: F401
     try:
         from app.models.user import User  # noqa: F401
     except ImportError:
@@ -48,6 +52,22 @@ def init_db(drop_all: bool = False):
     if drop_all:
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight SQLite column schema sync for development/test
+    try:
+        from sqlalchemy import inspect, text
+        inspector = inspect(engine)
+        if "recovery_decisions" in inspector.get_table_names():
+            columns = [col["name"] for col in inspector.get_columns("recovery_decisions")]
+            with engine.connect() as conn:
+                if "cart_value" not in columns:
+                    conn.execute(text("ALTER TABLE recovery_decisions ADD COLUMN cart_value FLOAT DEFAULT 0.0"))
+                if "purchase_status" not in columns:
+                    conn.execute(text("ALTER TABLE recovery_decisions ADD COLUMN purchase_status VARCHAR(32) DEFAULT 'abandoned'"))
+                conn.commit()
+    except Exception:
+        pass
+
 
 
 __all__ = ["engine", "SessionLocal", "Base", "get_db", "init_db", "settings"]

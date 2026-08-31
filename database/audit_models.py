@@ -119,6 +119,21 @@ def save_guardrail_audit_log(db: Session, log_data: Dict[str, Any]) -> Guardrail
     if not reason_str and blocked_list:
         reason_str = "; ".join(blocked_list) if isinstance(blocked_list, list) else str(blocked_list)
 
+    def safe_float(val, default=0.0):
+        if val is None:
+            return default
+        try:
+            import math
+            f = float(val)
+            return default if math.isnan(f) or math.isinf(f) else f
+        except Exception:
+            return default
+
+    risk_sc = safe_float(log_data.get("risk_score"), 0.0)
+    rec_prob = safe_float(log_data.get("recovery_probability"), None) if log_data.get("recovery_probability") is not None else None
+    exp_val = safe_float(log_data.get("expected_recovery_value"), None) if log_data.get("expected_recovery_value") is not None else None
+    cart_val = safe_float(log_data.get("cart_value"), None) if log_data.get("cart_value") is not None else None
+
     record = GuardrailAuditLog(
         audit_id=audit_id,
         decision_id=decision_id,
@@ -128,10 +143,10 @@ def save_guardrail_audit_log(db: Session, log_data: Dict[str, Any]) -> Guardrail
         final_action=str(log_data.get("final_action", log_data.get("action", "NO_ACTION"))),
         status=str(log_data.get("status", "BLOCKED")),
         execution_state=str(log_data.get("execution_state", "BLOCKED")),
-        risk_score=float(log_data.get("risk_score", 0.0)),
-        recovery_probability=float(log_data["recovery_probability"]) if log_data.get("recovery_probability") is not None else None,
-        expected_recovery_value=float(log_data["expected_recovery_value"]) if log_data.get("expected_recovery_value") is not None else None,
-        cart_value=float(log_data["cart_value"]) if log_data.get("cart_value") is not None else None,
+        risk_score=risk_sc,
+        recovery_probability=rec_prob,
+        expected_recovery_value=exp_val,
+        cart_value=cart_val,
         policy_version=str(log_data.get("policy_version", "v1.1")),
         checks_passed=int(log_data.get("checks_passed", 0)),
         checks_failed=int(log_data.get("checks_failed", 0)),
@@ -142,6 +157,7 @@ def save_guardrail_audit_log(db: Session, log_data: Dict[str, Any]) -> Guardrail
         idempotency_key=log_data.get("idempotency_key"),
         created_at=datetime.utcnow(),
     )
+
 
     db.add(record)
     db.commit()

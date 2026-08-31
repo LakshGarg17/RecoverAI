@@ -12,6 +12,22 @@ from database.audit_models import (
     get_recent_audit_logs_for_event,
 )
 
+from database.execution_models import (
+    RecoveryExecution,
+    save_execution_record,
+    get_execution_by_id,
+    get_execution_by_decision_id,
+    get_execution_by_idempotency_key,
+    get_execution_by_payment_link_id,
+)
+from database.recovery_models import (
+    RecoveryRecord,
+    save_recovery_record,
+    get_recovery_by_id,
+    get_recovery_by_execution_id,
+    get_recovery_by_event_id,
+)
+
 __all__ = [
     "Base",
     "engine",
@@ -35,6 +51,18 @@ __all__ = [
     "get_audit_log_by_idempotency_key",
     "get_audit_logs_by_customer_id",
     "get_recent_audit_logs_for_event",
+    "RecoveryExecution",
+    "save_execution_record",
+    "get_execution_by_id",
+    "get_execution_by_decision_id",
+    "get_execution_by_idempotency_key",
+    "get_execution_by_payment_link_id",
+    "RecoveryRecord",
+    "save_recovery_record",
+    "get_recovery_by_id",
+    "get_recovery_by_execution_id",
+    "get_recovery_by_event_id",
 ]
+
 
 
