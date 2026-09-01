@@ -1,9 +1,9 @@
 # RecoverAI — Day 7: Razorpay Test Mode & Recovery Execution Analysis Report
 
-> **Generated**: 2026-08-31 14:54:45 UTC  
+> **Generated**: 2026-08-31 15:26:35 UTC  
 > **Integration**: Razorpay Test Mode (`rzp_test_...`) + Currency Conversion (Paise Precision)  
 > **Batch Evaluated**: 1,000 events evaluated through complete pipeline  
-> **Throughput**: 16.0 evaluations/sec (62.53 seconds total runtime)  
+> **Throughput**: 15.6 evaluations/sec (64.07 seconds total runtime)  
 
 ---
 
@@ -47,18 +47,18 @@ Illustrative end-to-end scenarios run through the pipeline:
 
 | Event ID | Cart Value | Risk | Selected Action | Status | Provider | Payment Link ID | Execution Reason / Audit |
 | :--- | :---: | :---: | :--- | :---: | :---: | :---: | :--- |
-| `evt_000000` | ₹521.26 | nan | `PERSONALIZED_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000001` | ₹0.00 | nan | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
-| `evt_000002` | ₹1,601.76 | nan | `DELAYED_FOLLOW_UP` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000003` | ₹2,410.23 | nan | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase alread |
-| `evt_000004` | ₹2,642.43 | nan | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000005` | ₹825.16 | nan | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000006` | ₹2,495.32 | nan | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase alread |
-| `evt_000007` | ₹0.00 | nan | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
-| `evt_000008` | ₹1,583.76 | nan | `DELAYED_FOLLOW_UP` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000009` | ₹591.91 | nan | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
-| `evt_000010` | ₹0.00 | nan | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
-| `evt_000011` | ₹165.66 | nan | `PERSONALIZED_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000000` | ₹521.26 | 56.8 | `PERSONALIZED_REMINDER` | **`CREATED`** | `internal` | `—` | Existing execution record retrieved via idempotency key |
+| `evt_000001` | ₹0.00 | 46.0 | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
+| `evt_000002` | ₹1,601.76 | 49.5 | `DELAYED_FOLLOW_UP` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000003` | ₹2,410.23 | 84.0 | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase alread |
+| `evt_000004` | ₹2,642.43 | 63.0 | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000005` | ₹825.16 | 38.1 | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000006` | ₹2,495.32 | 87.9 | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase alread |
+| `evt_000007` | ₹0.00 | 41.5 | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
+| `evt_000008` | ₹1,583.76 | 55.3 | `DELAYED_FOLLOW_UP` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000009` | ₹591.91 | 32.6 | `CHECKOUT_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
+| `evt_000010` | ₹0.00 | 37.8 | `NO_ACTION` | **`REJECTED`** | `razorpay` | `—` | Decision is not approved for execution: Purchase status |
+| `evt_000011` | ₹165.66 | 43.6 | `PERSONALIZED_REMINDER` | **`CREATED`** | `internal` | `—` | Approved & Dispatched |
 
 ---
 
