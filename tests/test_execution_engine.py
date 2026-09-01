@@ -147,6 +147,33 @@ async def test_pre_execution_recheck_catches_stale_completion():
 
 
 @pytest.mark.asyncio
+async def test_already_recovered_case_is_rejected():
+    """
+    Scenario: Event was already recovered previously.
+    Expectation: Status REJECTED, reason indicates already completed/recovered.
+    """
+    init_db()
+    db = SessionLocal()
+    try:
+        dec = make_approved_decision(uuid.uuid4().hex[:8])
+        save_recovery_decision(db, dec)
+
+        engine = ExecutionEngine()
+        result = await engine.execute_decision(
+            decision_id=dec["decision_id"],
+            current_purchase_status="completed",
+            db=db,
+        )
+
+        assert result.status == "REJECTED"
+        assert result.payment_link_id is None
+
+    finally:
+        db.close()
+
+
+
+@pytest.mark.asyncio
 async def test_idempotency_prevents_duplicate_payment_links():
     """
     Scenario: Multiple rapid execution calls for the same decision.

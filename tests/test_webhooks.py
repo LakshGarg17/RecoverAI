@@ -276,3 +276,64 @@ def test_webhook_unrecognized_event_ignored_gracefully():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ignored"
+
+
+def test_webhook_duplicate_event_handling_idempotent(pending_execution_record):
+    """
+    Scenario: Duplicate webhook arrival for the same payment success event.
+    Expectation: Handled safely, remains SUCCEEDED without creating duplicated records or crashing.
+    """
+    init_db()
+    db = SessionLocal()
+    try:
+        save_execution_record(db, pending_execution_record)
+
+        payload_dict = {
+            "event": "payment_link.paid",
+            "payload": {
+                "payment_link": {
+                    "entity": {
+                        "id": pending_execution_record["payment_link_id"],
+                        "amount_paid": 750000,
+                        "status": "paid",
+                    }
+                },
+                "payment": {
+                    "entity": {
+                        "id": "pay_test_dup_1234",
+                        "amount": 750000,
+                        "currency": "INR",
+                        "status": "captured",
+                    }
+                }
+            }
+        }
+
+        payload_str = json.dumps(payload_dict)
+        sig = generate_test_signature(payload_str)
+
+        # First webhook arrival
+        r1 = client.post(
+            "/api/webhooks/razorpay",
+            content=payload_str,
+            headers={"X-Razorpay-Signature": sig, "Content-Type": "application/json"},
+        )
+        assert r1.status_code == 200
+
+        # Duplicate webhook arrival
+        r2 = client.post(
+            "/api/webhooks/razorpay",
+            content=payload_str,
+            headers={"X-Razorpay-Signature": sig, "Content-Type": "application/json"},
+        )
+        assert r2.status_code == 200
+
+        # Verify state
+        updated_exec = db.query(RecoveryExecution).filter(
+            RecoveryExecution.execution_id == pending_execution_record["execution_id"]
+        ).first()
+        assert updated_exec.status == "SUCCEEDED"
+
+    finally:
+        db.close()
+
