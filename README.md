@@ -289,6 +289,8 @@ Implemented in [`backend/analytics/`](backend/analytics/) (`recovery_metrics.py`
 - **Cost Incurred per ₹1.00 Recovered**: **₹0.00085**
 - **Measured ROI**: **+1,17,669%**
 
+> *Note on ROI Scale*: Operating cost reflects Test Mode API call overhead (~₹0.65/attempt) rather than commercial messaging/SMS/WhatsApp carrier spend, so this multiplier represents simulated platform economics rather than a production operating cost estimate.
+
 ---
 
 ## 🖥️ Merchant Dashboard & UI
@@ -605,8 +607,8 @@ pytest tests/ -v
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/your-username/recoverai.git
-cd recoverai
+git clone https://github.com/LakshGarg17/RecoverAI.git
+cd RecoverAI
 ```
 
 ### Step 2: Configure Environment Variables
@@ -744,6 +746,8 @@ Empirical results documented in [`docs/day9-evaluation.md`](docs/day9-evaluation
 │ Measured ROI Multiplier                 │ +1,17,669%                                   │
 └─────────────────────────────────────────┴──────────────────────────────────────────────┘
 ```
+
+> *Note on ROI Scale*: The +1,17,669% ROI is computed using Test Mode API overhead (~₹0.65/attempt) instead of real-world carrier SMS/WhatsApp distribution expenses and should not be interpreted as a production operating cost estimate.
 
 ---
 
