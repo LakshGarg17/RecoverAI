@@ -58,9 +58,12 @@ from app.api.v1.endpoints import guardrails as guardrail_endpoints
 from app.api.v1.endpoints import execution as execution_endpoints
 from app.api.v1.endpoints import webhooks as webhook_endpoints
 from app.api.v1.endpoints import recovery as recovery_endpoints
+
 from app.api.v1.endpoints import dashboard as dashboard_endpoints
+
 from app.api.v1.endpoints import transactions as transaction_endpoints
 from app.api.v1.endpoints import audit as audit_endpoints
+from app.api.v1.endpoints import analytics as analytics_endpoints
 
 app.include_router(ai_endpoints.router, prefix="/api/ai", tags=["AI Agent (Direct Alias)"])
 app.include_router(decision_endpoints.router, prefix="/api/decision", tags=["Recovery Decision Agent (Direct Alias)"])
@@ -69,8 +72,10 @@ app.include_router(execution_endpoints.router, prefix="/api/execution", tags=["R
 app.include_router(webhook_endpoints.router, prefix="/api/webhooks", tags=["Razorpay Webhooks (Direct Alias)"])
 app.include_router(recovery_endpoints.router, prefix="/api/recovery", tags=["Autonomous Recovery Pipeline (Direct Alias)"])
 app.include_router(dashboard_endpoints.router, prefix="/api/dashboard", tags=["Revenue Recovery Analytics (Direct Alias)"])
+app.include_router(analytics_endpoints.router, prefix="/api/analytics", tags=["Proof-of-Recovery & ROI Analytics (Direct Alias)"])
 app.include_router(transaction_endpoints.router, prefix="/api/transactions", tags=["Transactions & Executions (Direct Alias)"])
 app.include_router(audit_endpoints.router, prefix="/api/audit", tags=["Guardrail Audit Log (Direct Alias)"])
+
 
 
 

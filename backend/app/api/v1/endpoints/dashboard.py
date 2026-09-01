@@ -49,65 +49,27 @@ def _load_events_dataframe() -> pd.DataFrame:
     return pd.DataFrame()
 
 
+from backend.analytics.recovery_metrics import (
+    calculate_recovery_metrics,
+    get_recovery_time_series,
+    load_events_df,
+)
+
+
 @router.get("/summary", summary="Get High-Level Revenue Recovery KPIs")
 def get_dashboard_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
-    Computes real-time KPI metrics:
-    - Revenue at Risk (INR)
-    - Recovered Revenue (INR)
-    - Recovery Rate (%)
-    - Active Recoveries Count
-    - Blocked Recoveries Count
-    - Total Monitored Events
+    Computes real-time KPI metrics from shared analytics service.
     """
-    df = _load_events_dataframe()
-    
-    # Baseline dataset metrics
-    dataset_at_risk = 0.0
-    total_events = len(df) if not df.empty else 0
-    
-    if not df.empty:
-        # High-risk / abandoned events represent revenue at risk
-        at_risk_mask = df["purchase_status"].str.lower() != "completed"
-        dataset_at_risk = float(df[at_risk_mask]["cart_value"].sum()) if "cart_value" in df.columns else 0.0
-
-    # Live DB aggregations
-    db_decisions_count = db.query(func.count(RecoveryDecision.decision_id)).scalar() or 0
-    db_executions = db.query(RecoveryExecution).all()
-    db_recoveries = db.query(RecoveryRecord).all()
-    db_audit_logs = db.query(GuardrailAuditLog).all()
-
-    active_executions = sum(1 for e in db_executions if e.status in ["CREATED", "EXECUTING"])
-    blocked_count = sum(1 for a in db_audit_logs if a.status in ["BLOCKED", "REJECTED"])
-    
-    # Recovered revenue from actual recovery records
-    recovered_revenue = sum(float(r.recovered_amount or 0.0) for r in db_recoveries)
-    
-    # If no recovered records in DB yet, compute potential / simulated baseline
-    if recovered_revenue == 0.0 and db_executions:
-        # Sum succeeded executions
-        recovered_revenue = sum(float(e.amount or 0.0) for e in db_executions if e.status == "SUCCEEDED")
-
-    # If active recoveries is 0, estimate active opportunities from dataset
-    active_recoveries = active_executions if active_executions > 0 else (db_decisions_count or 412)
-    blocked_recoveries = blocked_count if blocked_count > 0 else 588
-
-    revenue_at_risk = dataset_at_risk if dataset_at_risk > 0 else 4520930.50
-    
-    # Recovery rate
-    total_targeted = active_recoveries + blocked_recoveries
-    recovery_rate = round((recovered_revenue / revenue_at_risk) * 100, 2) if revenue_at_risk > 0 else 0.0
-    if recovery_rate == 0.0 and recovered_revenue > 0:
-        recovery_rate = round((recovered_revenue / 1000000.0) * 100, 2)
-
+    metrics = calculate_recovery_metrics(db=db)
     return {
-        "revenue_at_risk": round(revenue_at_risk, 2),
-        "recovered_revenue": round(recovered_revenue, 2),
-        "recovery_rate": recovery_rate,
-        "active_recoveries": active_recoveries,
-        "blocked_recoveries": blocked_recoveries,
-        "total_events": total_events or 25000,
-        "currency": "INR",
+        "revenue_at_risk": metrics.revenue_at_risk,
+        "recovered_revenue": metrics.recovered_revenue,
+        "recovery_rate": metrics.recovery_rate,
+        "active_recoveries": metrics.active_opportunities,
+        "blocked_recoveries": metrics.blocked_by_guardrails,
+        "total_events": metrics.total_monitored_events,
+        "currency": metrics.currency,
     }
 
 
@@ -119,53 +81,8 @@ def get_recovery_trend(
     """
     Returns time series of daily revenue at risk vs revenue recovered.
     """
-    df = _load_events_dataframe()
-    trend_data = []
+    return get_recovery_time_series(days=days)
 
-    # Use actual timestamps or generate daily distributions from dataset dates
-    if not df.empty and "timestamp" in df.columns:
-        try:
-            df["dt"] = pd.to_datetime(df["timestamp"], errors="coerce")
-            valid_df = df.dropna(subset=["dt"]).sort_values("dt")
-            if not valid_df.empty:
-                valid_df["date_str"] = valid_df["dt"].dt.strftime("%Y-%m-%d")
-                grouped = valid_df.groupby("date_str")
-                
-                for date_str, group in list(grouped)[-days:]:
-                    at_risk = float(group[group["purchase_status"].str.lower() != "completed"]["cart_value"].sum())
-                    # Est recovery ~ 15-28% of eligible high intent
-                    recovered = round(at_risk * 0.185, 2)
-                    trend_data.append({
-                        "date": date_str,
-                        "at_risk": round(at_risk, 2),
-                        "recovered": recovered,
-                        "attempts": int(len(group[group["purchase_status"].str.lower() == "abandoned"])),
-                    })
-        except Exception:
-            pass
-
-    # Fallback realistic 14-day curve if timestamp parsing isn't applicable
-    if not trend_data:
-        from datetime import datetime, timedelta
-        base_date = datetime.now() - timedelta(days=days)
-        base_vals = [
-            (285000, 48200, 38), (310000, 52400, 42), (295000, 59000, 40),
-            (340000, 68000, 48), (390000, 78500, 55), (420000, 89200, 61),
-            (380000, 81000, 52), (360000, 74500, 49), (410000, 92000, 58),
-            (440000, 98400, 64), (430000, 94000, 60), (460000, 105000, 68),
-            (480000, 112000, 72), (510000, 128450, 78)
-        ]
-        for i in range(days):
-            d = (base_date + timedelta(days=i)).strftime("%Y-%m-%d")
-            v = base_vals[i % len(base_vals)]
-            trend_data.append({
-                "date": d,
-                "at_risk": v[0],
-                "recovered": v[1],
-                "attempts": v[2],
-            })
-
-    return trend_data
 
 
 @router.get("/funnel", summary="Get Recovery Conversion Funnel Stages")
