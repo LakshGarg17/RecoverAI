@@ -120,16 +120,31 @@ async def run_batch_execution_analysis():
             batch_stats["failed_executions"] += 1
 
         if idx < 12:
+            import math
+            raw_risk = ev_data.get("risk_score")
+            try:
+                sc = float(raw_risk)
+                display_risk = 0.0 if math.isnan(sc) else sc
+            except Exception:
+                display_risk = 0.0
+
+            if display_risk == 0.0:
+                from backend.services.risk_engine import evaluate_event_risk
+                risk_eval = evaluate_event_risk(ev_data)
+                display_risk = risk_eval.get("risk_score", 0.0) if isinstance(risk_eval, dict) else getattr(risk_eval, "risk_score", 0.0)
+
+
             sample_audit_trail.append({
                 "event_id": evt_id,
                 "cart_value": cart_val,
-                "risk_score": float(ev_data.get("risk_score") or 0.0),
+                "risk_score": display_risk,
                 "action": res.action,
                 "status": res.status,
                 "provider": res.provider,
                 "payment_link_id": res.payment_link_id or "—",
                 "reason": res.reason or "Approved & Dispatched",
             })
+
 
     elapsed = time.time() - start_time
     throughput = batch_stats["total_evaluated"] / elapsed if elapsed > 0 else 0
