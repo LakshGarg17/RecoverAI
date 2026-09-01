@@ -69,7 +69,7 @@ app.include_router(recovery_endpoints.router, prefix="/api/recovery", tags=["Aut
 
 
 
-# Top-level Health check endpoint required by spec: GET /api/health
+# Top-level Health check endpoints: GET /api/health and GET /health
 app.add_api_route(
     "/api/health",
     check_health,
@@ -77,6 +77,14 @@ app.add_api_route(
     tags=["Health"],
     summary="Top-level API Health Check",
 )
+app.add_api_route(
+    "/health",
+    check_health,
+    methods=["GET"],
+    tags=["Health"],
+    summary="Root Health Check",
+)
+
 
 
 @app.get("/", tags=["General"])
