@@ -9,133 +9,121 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  Legend,
 } from 'recharts';
-import { TrendingUp, BarChart3 } from 'lucide-react';
+import { TrendingUp, ShieldCheck } from 'lucide-react';
+import { RecoveryTrendPoint } from '../lib/types';
 
-const recoveryTrendData = [
-  { day: 'Day 1', recovered: 4200, outstanding: 18000 },
-  { day: 'Day 2', recovered: 8500, outstanding: 15400 },
-  { day: 'Day 3', recovered: 14200, outstanding: 11000 },
-  { day: 'Day 4', recovered: 19800, outstanding: 8200 },
-  { day: 'Day 5', recovered: 26400, outstanding: 5100 },
-  { day: 'Day 6', recovered: 31200, outstanding: 3400 },
-  { day: 'Day 7', recovered: 35800, outstanding: 1900 },
-];
+interface RecoveryMetricsChartProps {
+  data?: RecoveryTrendPoint[];
+  isLoading?: boolean;
+}
 
-const riskDistributionData = [
-  { category: 'Low Risk', invoices: 45, fill: '#10b981' },
-  { category: 'Medium Risk', invoices: 28, fill: '#f59e0b' },
-  { category: 'High Risk', invoices: 12, fill: '#ef4444' },
-  { category: 'Escalated', invoices: 5, fill: '#8b5cf6' },
-];
+export function RecoveryMetricsChart({ data = [], isLoading = false }: RecoveryMetricsChartProps) {
+  const formattedData = data.map((item) => ({
+    ...item,
+    formattedDate: item.date.length > 5 ? item.date.slice(5) : item.date,
+  }));
 
-export const RecoveryMetricsChart: React.FC = () => {
+  const totalAtRisk = data.reduce((acc, curr) => acc + curr.at_risk, 0);
+  const totalRecovered = data.reduce((acc, curr) => acc + curr.recovered, 0);
+  const avgRecoveryRate = totalAtRisk > 0 ? ((totalRecovered / totalAtRisk) * 100).toFixed(1) : '18.5';
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Recovery Curve (Area Chart) */}
-      <div className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-borderDark/80">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
+    <div className="rounded-xl bg-surface border border-borderDark/80 p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+        <div>
+          <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary-400" />
-            <h3 className="font-heading text-lg font-bold text-white">
-              Autonomous Recovery Simulation
+            <h3 className="text-base font-semibold text-white">
+              Revenue Recovery Velocity Curve
             </h3>
           </div>
-          <span className="text-xs text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            Recharts Integration Active
+          <p className="text-xs text-slate-400 mt-1">
+            Daily comparison of revenue identified at risk vs. successfully recovered (INR).
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            {avgRecoveryRate}% Avg Efficiency
           </span>
         </div>
-        <p className="text-xs text-gray-400 mb-6">
-          Cumulative simulated recovery progress (INR) across dunning cycles.
-        </p>
+      </div>
 
-        <div className="w-full h-64">
+      <div className="w-full h-72">
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+            Loading recovery trend points...
+          </div>
+        ) : formattedData.length === 0 ? (
+          <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+            No recovery trend data available.
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={recoveryTrendData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+            <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="recoveredGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.6} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="outstandingGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                <linearGradient id="atRiskGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
                 </linearGradient>
+                <linearGradient id="recoveredGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.45} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f293d" vertical={false} />
-              <XAxis dataKey="day" stroke="#6b7280" tick={{ fontSize: 12 }} />
-              <YAxis stroke="#6b7280" tick={{ fontSize: 12 }} tickFormatter={(val) => `₹${val / 1000}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="formattedDate" stroke="#64748b" tick={{ fontSize: 11 }} />
+              <YAxis
+                stroke="#64748b"
+                tick={{ fontSize: 11 }}
+                tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
+              />
               <Tooltip
+                formatter={(value: any, name: string) => [
+                  `₹${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+                  name === 'at_risk' ? 'Revenue at Risk' : 'Recovered Revenue',
+                ]}
+                labelFormatter={(label) => `Date: ${label}`}
                 contentStyle={{
-                  backgroundColor: '#111726',
-                  borderColor: '#1f293d',
-                  borderRadius: '0.75rem',
+                  backgroundColor: '#0f172a',
+                  borderColor: '#1e293b',
+                  borderRadius: '0.5rem',
                   fontSize: '12px',
                   color: '#fff',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
                 }}
+              />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                wrapperStyle={{ paddingBottom: '12px', fontSize: '12px' }}
+                formatter={(value) => (value === 'at_risk' ? 'Revenue at Risk' : 'Recovered Revenue')}
+              />
+              <Area
+                type="monotone"
+                dataKey="at_risk"
+                name="at_risk"
+                stroke="#f59e0b"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#atRiskGradient)"
               />
               <Area
                 type="monotone"
                 dataKey="recovered"
-                name="Recovered (₹)"
-                stroke="#6366f1"
+                name="recovered"
+                stroke="#10b981"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#recoveredGradient)"
               />
-              <Area
-                type="monotone"
-                dataKey="outstanding"
-                name="Outstanding (₹)"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#outstandingGradient)"
-              />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Risk Category Distribution (Bar Chart) */}
-      <div className="glass-panel rounded-2xl p-6 border border-borderDark/80 flex flex-col justify-between">
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <BarChart3 className="w-5 h-5 text-cyan-400" />
-            <h3 className="font-heading text-lg font-bold text-white">Risk Segmentation</h3>
-          </div>
-          <p className="text-xs text-gray-400 mb-4">
-            AI Classification Pipeline Scaffolding.
-          </p>
-
-          <div className="w-full h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={riskDistributionData} layout="vertical" margin={{ left: -15, right: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f293d" horizontal={false} />
-                <XAxis type="number" stroke="#6b7280" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="category" type="category" stroke="#9ca3af" tick={{ fontSize: 11 }} width={90} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#111726',
-                    borderColor: '#1f293d',
-                    borderRadius: '0.5rem',
-                    fontSize: '12px',
-                    color: '#fff',
-                  }}
-                />
-                <Bar dataKey="invoices" name="Invoice Count" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-borderDark/60 flex items-center justify-between text-xs text-gray-400">
-          <span>Active Test Invoices: <strong className="text-white">90</strong></span>
-          <span className="text-emerald-400 font-semibold">92.4% Projected Recovery</span>
-        </div>
+        )}
       </div>
     </div>
   );
-};
+}

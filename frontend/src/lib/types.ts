@@ -1,6 +1,6 @@
 export interface ServiceStatus {
   status: string;
-  latency_ms?: number;
+  latency_ms?: number | null;
   details?: Record<string, any>;
 }
 
@@ -18,36 +18,219 @@ export interface HealthResponse {
   };
 }
 
-export interface PaymentOrderPayload {
-  amount: number;
-  currency?: string;
-  receipt?: string;
-  notes?: Record<string, string>;
-}
-
-export interface PaymentOrderResponse {
-  id: string;
-  entity: string;
-  amount: number;
-  amount_paid: number;
-  amount_due: number;
+export interface DashboardSummary {
+  revenue_at_risk: number;
+  recovered_revenue: number;
+  recovery_rate: number;
+  active_recoveries: number;
+  blocked_recoveries: number;
+  total_events: number;
   currency: string;
-  receipt?: string;
-  status: string;
 }
 
-export interface AIAnalysisPayload {
-  customer_name: string;
-  overdue_days: number;
+export interface RecoveryTrendPoint {
+  date: string;
+  at_risk: number;
+  recovered: number;
+  attempts: number;
+}
+
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  value: number;
+  conversion_rate: number;
+  description: string;
+}
+
+export interface RecoveryFunnel {
+  stages: FunnelStage[];
+}
+
+export interface ActionDistribution {
+  action: string;
+  count: number;
+  percentage: number;
+}
+
+export interface AIInsights {
+  top_recovery_reason: string;
+  top_diagnosis_category: string;
+  top_diagnosis_explanation: string;
+  estimated_recoverable_value: number;
+  action_distribution: ActionDistribution[];
+  high_intent_rate: number;
+  recommended_focus: string;
+}
+
+export interface RecoveryOpportunity {
+  event_id: string;
+  customer_id: string;
   amount: number;
-  currency?: string;
-  previous_communications?: string[];
+  currency: string;
+  risk_score: number;
+  priority: string;
+  ai_action: string;
+  guardrail_status: string;
+  status: string;
+  payment_url?: string | null;
+  execution_id?: string | null;
+  created_at: string;
 }
 
-export interface AIAnalysisResponse {
-  risk_level: 'low' | 'medium' | 'high' | 'critical';
-  recommended_action: string;
-  suggested_channel: string;
-  personalized_draft: string;
-  confidence_score: number;
+export interface OpportunitiesResponse {
+  items: RecoveryOpportunity[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface GuardrailCheckResult {
+  check_name: string;
+  status: 'PASSED' | 'FAILED' | 'SKIPPED';
+  reason: string;
+}
+
+export interface AuditTimelineEvent {
+  timestamp: string;
+  stage: string;
+  title: string;
+  description: string;
+  status: 'COMPLETED' | 'BLOCKED' | 'PENDING';
+}
+
+export interface RecoveryDetail {
+  event_id: string;
+  customer_id: string;
+  cart_value: number;
+  currency: string;
+  risk_score: number;
+  priority: string;
+  selected_action: string;
+  ai_diagnosis_category: string;
+  ai_explanation: string;
+  suggested_message: string;
+  expected_recovery_value: number;
+  guardrail_status: string;
+  checks: GuardrailCheckResult[];
+  execution: {
+    status: string;
+    payment_link_id?: string | null;
+    payment_url?: string | null;
+    provider: string;
+    error_code?: string | null;
+  };
+  recovery: {
+    status: string;
+    recovered_amount: number;
+    payment_id?: string | null;
+  };
+  timeline: AuditTimelineEvent[];
+  event_metadata?: Record<string, any>;
+}
+
+export interface RecoveryPolicyConfig {
+  policy_version: string;
+  max_recovery_attempts: number;
+  cooldown_minutes: number;
+  minimum_risk_score: number;
+  minimum_recovery_probability: number;
+  minimum_expected_value: number;
+  max_transaction_value: number;
+  allow_payment_link: boolean;
+  allow_personalized_reminder: boolean;
+  allow_checkout_reminder: boolean;
+  allow_delayed_follow_up: boolean;
+  max_customer_contact_frequency_24h: number;
+  high_value_review_threshold: number;
+  max_customer_friction: string;
+  min_cart_value_for_payment_link: number;
+  min_intent_for_payment_link: number;
+}
+
+export interface TransactionItem {
+  transaction_id: string;
+  event_id: string;
+  customer_id: string;
+  amount: number;
+  currency: string;
+  payment_link_id?: string;
+  payment_id?: string;
+  provider: string;
+  status: 'RECOVERED' | 'PENDING' | 'FAILED' | string;
+  action: string;
+  created_at: string;
+}
+
+export interface TransactionsResponse {
+  items: TransactionItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface AuditLogItem {
+  audit_id: string;
+  decision_id: string;
+  event_id: string;
+  customer_id: string;
+  requested_action: string;
+  final_action: string;
+  status: string;
+  execution_state: string;
+  risk_score: number;
+  cart_value?: number;
+  policy_version: string;
+  checks_passed: number;
+  checks_failed: number;
+  reason?: string;
+  created_at: string;
+}
+
+export interface AuditLogsResponse {
+  items: AuditLogItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface DemoRecoveryCase {
+  case_id: string;
+  description: string;
+  event_data: {
+    event_id: string;
+    customer_id: string;
+    cart_value: number;
+    risk_score?: number;
+    purchase_status: string;
+    session_duration?: number;
+    pages_viewed?: number;
+    payment_method?: string;
+  };
+  expected_outcome: {
+    guardrail_status: string;
+    selected_action: string;
+    execution_status: string;
+  };
+}
+
+export interface RecoveryRunResult {
+  event_id: string;
+  customer_id?: string;
+  risk_score: number;
+  priority?: string;
+  selected_action: string;
+  decision_score?: number;
+  guardrail_status: string;
+  execution_status: string;
+  expected_recovery_value: number;
+  payment_link_created: boolean;
+  payment_link_id?: string | null;
+  payment_url?: string | null;
+  execution_id?: string | null;
+  reason?: string;
+  blocked_reasons?: string[];
 }

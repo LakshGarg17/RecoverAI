@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { DashboardLayout } from '../components/DashboardLayout';
 
 export const metadata: Metadata = {
-  title: 'RecoverAI — Autonomous Payment Recovery Agent',
-  description: 'AI-Powered Autonomous Payment Recovery & Intelligent Dunning Platform for Modern SaaS and Enterprises.',
+  title: 'RecoverAI — Autonomous Revenue Recovery Agent',
+  description: 'AI-Powered Autonomous Revenue Recovery & Intelligent Dunning Platform for E-Commerce.',
 };
 
 export default function RootLayout({
@@ -13,9 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased selection:bg-indigo-500 selection:text-white">
-        {children}
+      <body className="antialiased bg-background selection:bg-indigo-500 selection:text-white">
+        <DashboardLayout>
+          {children}
+        </DashboardLayout>
       </body>
     </html>
   );
 }
+
