@@ -11,7 +11,13 @@ import {
   AuditLogsResponse,
   DemoRecoveryCase,
   RecoveryRunResult,
+  AnalyticsSummary,
+  ActionPerformance,
+  RiskBucketPerformance,
+  ROIAnalyticsResponse,
+  AIEvaluationReport,
 } from './types';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -171,6 +177,36 @@ class ApiClient {
     const queryString = query.toString() ? `?${query.toString()}` : '';
     return this.get<AuditLogsResponse>(`/api/audit/logs${queryString}`);
   }
+
+  // Day 9: Dedicated Analytics & Proof-of-Recovery APIs
+  async getAnalyticsSummary(timeRange: string = '30d', startDate?: string, endDate?: string): Promise<AnalyticsSummary> {
+    const query = new URLSearchParams();
+    query.set('time_range', timeRange);
+    if (startDate) query.set('start_date', startDate);
+    if (endDate) query.set('end_date', endDate);
+    return this.get<AnalyticsSummary>(`/api/analytics/summary?${query.toString()}`);
+  }
+
+  async getAnalyticsActions(): Promise<ActionPerformance[]> {
+    return this.get<ActionPerformance[]>('/api/analytics/actions');
+  }
+
+  async getAnalyticsRiskPerformance(): Promise<RiskBucketPerformance[]> {
+    return this.get<RiskBucketPerformance[]>('/api/analytics/risk-performance');
+  }
+
+  async getAnalyticsROI(timeRange: string = '30d'): Promise<ROIAnalyticsResponse> {
+    return this.get<ROIAnalyticsResponse>(`/api/analytics/roi?time_range=${timeRange}`);
+  }
+
+  async getAnalyticsAIEvaluation(): Promise<AIEvaluationReport> {
+    return this.get<AIEvaluationReport>('/api/analytics/ai-evaluation');
+  }
+
+  async getAnalyticsTrend(days: number = 14): Promise<RecoveryTrendPoint[]> {
+    return this.get<RecoveryTrendPoint[]>(`/api/analytics/trend?days=${days}`);
+  }
 }
 
 export const api = new ApiClient(API_URL);
+

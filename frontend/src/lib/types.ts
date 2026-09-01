@@ -234,3 +234,85 @@ export interface RecoveryRunResult {
   reason?: string;
   blocked_reasons?: string[];
 }
+
+// Day 9: Dedicated Analytics, ROI & Evaluation Types
+export interface AnalyticsSummary {
+  revenue_at_risk: number;
+  recovery_attempts: number;
+  successful_recoveries: number;
+  recovered_revenue: number;
+  observed_recovery: number;
+  estimated_incremental_recovery: number;
+  recovery_rate: number;
+  average_recovery_value: number;
+  active_opportunities: number;
+  blocked_by_guardrails: number;
+  total_monitored_events: number;
+  currency: string;
+  time_range: string;
+}
+
+export interface ActionPerformance {
+  action: string;
+  display_name: string;
+  attempts: number;
+  successes: number;
+  recovery_rate: number;
+  revenue_recovered: number;
+  average_cart_value: number;
+}
+
+export interface RiskBucketPerformance {
+  bucket: string;
+  min_score: number;
+  max_score: number;
+  events_count: number;
+  attempts_count: number;
+  recoveries_count: number;
+  recovery_rate: number;
+  revenue_recovered: number;
+}
+
+export interface ROIBreakdown {
+  gross_recovered_revenue: number;
+  total_recovery_attempts: number;
+  estimated_operating_cost: number;
+  net_recovery_value: number;
+  roi_percentage: number;
+  cost_per_recovered_rupee: number;
+  currency: string;
+  cost_methodology_note: string;
+}
+
+export interface MetricComparison {
+  metric_name: string;
+  simulated_baseline: string;
+  recoverai: string;
+  lift: string;
+}
+
+export interface BaselineComparisonResult {
+  comparison_table: MetricComparison[];
+  simulated_baseline_revenue: number;
+  recoverai_observed_revenue: number;
+  estimated_incremental_revenue: number;
+  recovery_rate_lift_multiplier: number;
+  methodology_disclaimer: string;
+}
+
+export interface ROIAnalyticsResponse {
+  roi: ROIBreakdown;
+  baseline_comparison: BaselineComparisonResult;
+}
+
+export interface AIEvaluationReport {
+  ai_action_success_rate: number;
+  total_ai_actions_executed: number;
+  total_successful_ai_recoveries: number;
+  total_revenue_influenced: number;
+  action_performances: ActionPerformance[];
+  risk_calibration_buckets: RiskBucketPerformance[];
+  merchant_takeaways: string[];
+  evaluation_label_disclaimer: string;
+}
+
