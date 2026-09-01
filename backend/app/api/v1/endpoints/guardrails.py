@@ -121,6 +121,17 @@ async def validate_recovery_guardrail_endpoint(
 
 
 @router.get(
+    "/policy",
+    summary="Get Current Merchant Recovery Policy Configuration",
+    description="Returns the active merchant recovery policy thresholds, limits, and guardrail constraints."
+)
+def get_guardrails_policy_endpoint() -> Dict[str, Any]:
+    from backend.config.recovery_policy import get_recovery_policy
+    policy = get_recovery_policy()
+    return policy.to_dict()
+
+
+@router.get(
     "/audit/{audit_id}",
     summary="Get Guardrail Audit Record by ID",
     description="Retrieves an immutable guardrail audit record by unique audit_id."
@@ -143,3 +154,4 @@ def get_audit_record_endpoint(audit_id: str, db: Session = Depends(get_db)):
 def get_decision_audit_records_endpoint(decision_id: str, db: Session = Depends(get_db)):
     records = get_audit_logs_by_decision_id(db, decision_id)
     return [r.to_dict() for r in records]
+
