@@ -171,8 +171,8 @@ def get_ai_insights(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     # 1. Action Distribution from stored decisions or calibrated baseline
     decisions = db.query(RecoveryDecision).all()
-    
-    action_counts = {}
+    all_actions = ["PAYMENT_LINK", "PERSONALIZED_REMINDER", "CHECKOUT_REMINDER", "DELAYED_FOLLOW_UP", "NO_ACTION"]
+    action_counts = {act: 0 for act in all_actions}
     if decisions:
         for d in decisions:
             act = d.selected_action or "NO_ACTION"
