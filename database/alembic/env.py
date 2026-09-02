@@ -23,13 +23,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url with the current setting
-db_url = settings.DATABASE_URL
-# Handle sqlite fallback if specified in dev
-if settings.USE_SQLITE_FALLBACK and "sqlite" in settings.DATABASE_URL:
-    db_url = settings.SQLITE_FALLBACK_URL
-
-config.set_main_option("sqlalchemy.url", db_url)
+# Determine database URL: prioritize config if custom URL passed, otherwise use app settings
+custom_url = config.get_main_option("sqlalchemy.url")
+if not custom_url or custom_url == "postgresql://postgres:postgres@localhost:5432/recoverai":
+    db_url = settings.DATABASE_URL
+    if settings.USE_SQLITE_FALLBACK and "sqlite" in settings.DATABASE_URL:
+        db_url = settings.SQLITE_FALLBACK_URL
+    config.set_main_option("sqlalchemy.url", db_url)
 
 # Set target metadata for 'autogenerate' support
 target_metadata = Base.metadata
