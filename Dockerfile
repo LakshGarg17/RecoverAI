@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r ./backend/requirements.txt
 
 COPY backend ./backend
 COPY database ./database
+COPY ai ./ai
 
 ENV PYTHONPATH=/app:/app/backend
 
