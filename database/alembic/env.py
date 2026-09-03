@@ -7,8 +7,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# Add backend to sys.path so models can be discovered
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend")))
+# Add project root and backend to sys.path
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BACKEND_ROOT = os.path.join(PROJECT_ROOT, "backend")
+
+sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, BACKEND_ROOT)    
 
 from app.core.config import settings
 from app.core.db import Base
@@ -27,9 +31,13 @@ if config.config_file_name is not None:
 custom_url = config.get_main_option("sqlalchemy.url")
 if not custom_url or custom_url == "postgresql://postgres:postgres@localhost:5432/recoverai":
     db_url = settings.DATABASE_URL
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
     if settings.USE_SQLITE_FALLBACK and "sqlite" in settings.DATABASE_URL:
         db_url = settings.SQLITE_FALLBACK_URL
     config.set_main_option("sqlalchemy.url", db_url)
+elif custom_url.startswith("postgres://"):
+    config.set_main_option("sqlalchemy.url", custom_url.replace("postgres://", "postgresql://", 1))
 
 # Set target metadata for 'autogenerate' support
 target_metadata = Base.metadata
