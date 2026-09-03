@@ -5,7 +5,7 @@ from typing import Optional
 from app.core.db import get_db
 from app.schemas.ai import AIAnalysisRequest, AIAnalysisResponse
 from app.services.ai_agent import ai_service
-from app.ai.schemas import DiagnoseEventRequest, DiagnoseEventResponse
+from ai.schemas import DiagnoseEventRequest, DiagnoseEventResponse
 from ai.diagnosis import ai_diagnosis_agent
 from database.ai_decisions import save_ai_decision, get_decision_by_event_id
 
