@@ -1,0 +1,103 @@
+[
+  {
+    "case": "high_value_recovery",
+    "description": "High cart value with strong purchase intent and critical risk score; expected to generate Razorpay Payment Link in Test Mode.",
+    "is_test_case": true,
+    "event_data": {
+      "event_id": "evt_demo_high_val_001",
+      "customer_id": "cust_demo_vip_101",
+      "cart_value": 14999.0,
+      "currency": "INR",
+      "payment_method": "UPI",
+      "session_duration": 1150,
+      "pages_viewed": 7,
+      "purchase_status": "abandoned",
+      "purchase_history": 3,
+      "customer_lifetime_value": 38000.0,
+      "average_order_value": 12666.0,
+      "cart_abandonment_rate": 0.15,
+      "total_sessions": 5,
+      "risk_score": 91.0,
+      "purchase_intent_score": 88.0
+    },
+    "expected_action": "PAYMENT_LINK",
+    "expected_guardrail_status": "APPROVED",
+    "expected_execution_status": "CREATED"
+  },
+  {
+    "case": "repeat_buyer_personalized_reminder",
+    "description": "Valued repeat customer with previous purchases; receives a high-converting personalized checkout reminder.",
+    "is_test_case": true,
+    "event_data": {
+      "event_id": "evt_demo_repeat_002",
+      "customer_id": "cust_demo_repeat_102",
+      "cart_value": 4500.0,
+      "currency": "INR",
+      "payment_method": "CARD",
+      "session_duration": 820,
+      "pages_viewed": 5,
+      "purchase_status": "abandoned",
+      "purchase_history": 2,
+      "customer_lifetime_value": 14000.0,
+      "average_order_value": 7000.0,
+      "cart_abandonment_rate": 0.20,
+      "total_sessions": 4,
+      "risk_score": 75.0,
+      "purchase_intent_score": 78.0
+    },
+    "expected_action": "PERSONALIZED_REMINDER",
+    "expected_guardrail_status": "APPROVED",
+    "expected_execution_status": "CREATED"
+  },
+  {
+    "case": "blocked_low_risk_recovery",
+    "description": "Low risk score below merchant threshold (35.0 < 60.0); guardrails prevent execution without dispatching payment links.",
+    "is_test_case": true,
+    "event_data": {
+      "event_id": "evt_demo_blocked_003",
+      "customer_id": "cust_demo_cold_103",
+      "cart_value": 25000.0,
+      "currency": "INR",
+      "payment_method": "NETBANKING",
+      "session_duration": 40,
+      "pages_viewed": 1,
+      "purchase_status": "abandoned",
+      "purchase_history": 0,
+      "customer_lifetime_value": 0.0,
+      "average_order_value": 0.0,
+      "cart_abandonment_rate": 0.95,
+      "total_sessions": 1,
+      "risk_score": 35.0,
+      "purchase_intent_score": 25.0
+    },
+    "expected_action": "NO_ACTION",
+    "expected_guardrail_status": "BLOCKED",
+    "expected_execution_status": "REJECTED"
+  },
+  {
+    "case": "already_completed_transaction",
+    "description": "Real-time payment status is already completed; guardrails prevent duplicate recovery outreach.",
+    "is_test_case": true,
+    "event_data": {
+      "event_id": "evt_demo_completed_004",
+      "customer_id": "cust_demo_done_104",
+      "cart_value": 9999.0,
+      "currency": "INR",
+      "payment_method": "UPI",
+      "session_duration": 600,
+      "pages_viewed": 4,
+      "purchase_status": "completed",
+      "purchase_history": 1,
+      "customer_lifetime_value": 9999.0,
+      "average_order_value": 9999.0,
+      "cart_abandonment_rate": 0.0,
+      "total_sessions": 1,
+      "risk_score": 88.0,
+      "purchase_intent_score": 80.0
+    },
+    "current_purchase_status": "completed",
+    "expected_action": "NO_ACTION",
+    "expected_guardrail_status": "BLOCKED",
+    "expected_execution_status": "REJECTED"
+  }
+]
